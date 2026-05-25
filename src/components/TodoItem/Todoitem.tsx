@@ -61,9 +61,9 @@ export const TodoItem: React.FC<Props> = ({
   }
 
   // Use shared updatingIds array to support multiple concurrent operations
-  const onDelete = async (postId: number) => {
+  // Accepts optional flag: wasEditMode
+  const onDelete = async (postId: number, wasEditMode = false) => {
     setErrorMessage('');
-    // mark this id as updating
     setUpdatingIds(prev => [...prev, postId]);
     try {
       await postService.deletePost(postId);
@@ -72,13 +72,15 @@ export const TodoItem: React.FC<Props> = ({
       return true;
     } catch (error) {
       setErrorMessage(ErrorMessage.DeleteTodo);
-      // keep editor open if delete failed
-      setEditingId(postId);
-      setTimeout(() => setErrorMessage(''), 3000);
+      // Only keep editor open if delete failed from edit mode
+      if (wasEditMode) {
+        setEditingId(postId);
+      }
+
+      // error message timeout handled globally in App.tsx
 
       return false;
     } finally {
-      // remove id from updating list
       setUpdatingIds(prev => prev.filter(updatingId => updatingId !== postId));
     }
   };
@@ -87,8 +89,8 @@ export const TodoItem: React.FC<Props> = ({
     const trimmed = editedTitle.trim();
 
     if (trimmed === '') {
-      // delete
-      const ok = await onDelete(postId);
+      // delete (from edit mode)
+      const ok = await onDelete(postId, true);
 
       if (ok) {
         setEditingId(null);
@@ -114,7 +116,6 @@ export const TodoItem: React.FC<Props> = ({
       const updated = await postService.updateTodo(postId, { title: trimmed });
 
       setPosts(prev => prev.map(p => (p.id === postId ? updated : p)));
-      // close editor on success
       setEditingId(null);
     } catch (e) {
       setErrorMessage(ErrorMessage.UpdateTodo);
@@ -187,7 +188,7 @@ export const TodoItem: React.FC<Props> = ({
               aria-label="Delete todo"
               className="todo__remove"
               data-cy="TodoDelete"
-              onClick={() => onDelete(post.id)}
+              onClick={() => onDelete(post.id, false)}
               disabled={updatingIds.includes(post.id)}
             >
               ×

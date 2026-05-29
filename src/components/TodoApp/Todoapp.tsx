@@ -39,6 +39,24 @@ export const TodoApp: React.FC<Props> = ({
 
   const [isAdding, setIsAdding] = useState(false);
 
+  const handleTodoSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      const value = (e.target as HTMLInputElement).value.trim();
+
+      if (!value) {
+        return;
+      }
+
+      setIsAdding(true);
+      setTempTodo({
+        id: 0,
+        title: value,
+        completed: false,
+        userId: USER_ID,
+      });
+    }
+  };
+
   async function handleToggleAll() {
     const target = !allCompleted;
     // update only posts that actually change
@@ -120,24 +138,7 @@ export const TodoApp: React.FC<Props> = ({
           ref={inputRef}
           value={title || ''}
           onChange={event => setTitle(event.target.value)}
-          onKeyDown={e => {
-            if (e.key === 'Enter') {
-              const value = (e.target as HTMLInputElement).value.trim();
-
-              if (!value) {
-                return;
-              }
-
-              // disable immediately so tests observe disabled state
-              setIsAdding(true);
-              setTempTodo({
-                id: 0,
-                title: value,
-                completed: false,
-                userId: USER_ID,
-              });
-            }
-          }}
+          onKeyDown={handleTodoSubmit}
           disabled={isAdding || loading}
           className="todoapp__new-todo"
           placeholder="What needs to be done?"

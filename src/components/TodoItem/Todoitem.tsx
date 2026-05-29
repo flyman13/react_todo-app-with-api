@@ -125,6 +125,26 @@ export const TodoItem: React.FC<Props> = ({
     }
   };
 
+  // Extracted event handlers for mentor's code review
+  const handleDoubleClick = (post: Todos) => {
+    setEditingId(post.id);
+    setEditedTitle(post.title);
+  };
+
+  const handleEditKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    post: Todos,
+  ) => {
+    if (e.key === 'Enter') {
+      handleEdit(post.id);
+    }
+
+    if (e.key === 'Escape') {
+      setEditingId(null);
+      setEditedTitle(post.title);
+    }
+  };
+
   return (
     <div>
       {visibleTodos.map(post => (
@@ -132,10 +152,7 @@ export const TodoItem: React.FC<Props> = ({
           key={post.id}
           data-cy="Todo"
           className={classNames('todo', { completed: post.completed })}
-          onDoubleClick={() => {
-            setEditingId(post.id);
-            setEditedTitle(post.title);
-          }}
+          onDoubleClick={() => handleDoubleClick(post)}
         >
           <label className="todo__status-label" htmlFor="todoStatus">
             <input
@@ -157,16 +174,7 @@ export const TodoItem: React.FC<Props> = ({
               value={editedTitle}
               onChange={e => setEditedTitle(e.target.value)}
               onBlur={() => handleEdit(post.id)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  handleEdit(post.id);
-                }
-
-                if (e.key === 'Escape') {
-                  setEditingId(null);
-                  setEditedTitle(post.title);
-                }
-              }}
+              onKeyDown={e => handleEditKeyDown(e, post)}
               autoFocus
               className="todo__title-field"
             />
@@ -174,10 +182,7 @@ export const TodoItem: React.FC<Props> = ({
             <span
               data-cy="TodoTitle"
               className="todo__title"
-              onDoubleClick={() => {
-                setEditingId(post.id);
-                setEditedTitle(post.title);
-              }}
+              onDoubleClick={() => handleDoubleClick(post)}
             >
               {post.title}
             </span>

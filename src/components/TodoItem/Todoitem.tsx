@@ -154,11 +154,14 @@ export const TodoItem: React.FC<Props> = ({
           className={classNames('todo', { completed: post.completed })}
           onDoubleClick={() => handleDoubleClick(post)}
         >
-          <label className="todo__status-label" htmlFor="todoStatus">
+          <label
+            className="todo__status-label"
+            htmlFor={`todo-toggle-${post.id}`}
+          >
             <input
               data-cy="TodoStatus"
               type="checkbox"
-              id="todoStatus"
+              id={`todo-toggle-${post.id}`}
               className="todo__status"
               onChange={event =>
                 handleTodoStatus(post.id, event.target.checked)
